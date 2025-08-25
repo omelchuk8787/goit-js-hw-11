@@ -3,43 +3,51 @@ import iziToast from 'izitoast';
 import 'izitoast/dist/css/iziToast.min.css';
 import { hideLoader } from './render-functions';
 
-export function getImagesByQuery(query) {
-  axios.defaults.baseURL = 'https://pixabay.com';
+axios.defaults.baseURL = 'https://pixabay.com';
+
+export async function getImagesByQuery(query, page = 1, perPage = 21) {
   const params = {
     key: '49676421-fbb984ce693a0b40b5728e81f',
-    q: `${query}`,
+    q: query,
     image_type: 'photo',
     orientation: 'horizontal',
     safesearch: true,
-    per_page: 21,
-    page: 1,
+    per_page: perPage,
+    page: page,
   };
-  return axios
-    .get('/api/', { params })
-    .then(res => {
-      const images = res.data.hits;
-      console.log(images);
-      if (images && Array.isArray(images) && images.length > 0) {
-        return images;
-      } else {
-        return iziToast.show({
-          title: '❌',
-          message:
-            'Sorry, there are no images matching <br> your search query. Please try again!',
-          color: 'red',
-          position: 'topRight',
-          messageColor: 'white',
-          titleColor: 'white',
-        });
-      }
-    })
-    .catch(error => {
-      iziToast.show({
-        title: 'Error',
-        message: error.message,
+
+  try {
+    const res = await axios.get('/api/', { params });
+    const { hits, totalHits, total } = res.data;
+
+    if (!hits || hits.length === 0) {
+      iziToast.warning({
+        title: '❌',
+        message:
+          'Sorry, there are no images matching your search query. Please try again!',
+        color: 'orange',
+        position: 'topRight',
+        messageColor: 'white',
+        titleColor: 'white',
       });
-    })
-    .finally(() => {
-      hideLoader();
+
+      // Повертаємо передбачувану структуру навіть якщо результатів нема
+      return { hits: [], totalHits: 0, total: 0 };
+    }
+
+    return { hits, totalHits, total };
+  } catch (error) {
+    iziToast.error({
+      title: 'Error',
+      message: error.message || 'Something went wrong. Please try again later.',
+      color: 'red',
+      position: 'topRight',
+      messageColor: 'white',
+      titleColor: 'white',
     });
+
+    return { hits: [], totalHits: 0, total: 0 };
+  } finally {
+    hideLoader();
+  }
 }
