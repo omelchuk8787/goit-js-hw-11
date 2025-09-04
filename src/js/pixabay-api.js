@@ -1,7 +1,6 @@
 import axios from 'axios';
 import iziToast from 'izitoast';
 import 'izitoast/dist/css/iziToast.min.css';
-import { hideLoader } from './render-functions';
 
 axios.defaults.baseURL = 'https://pixabay.com';
 
@@ -31,7 +30,6 @@ export async function getImagesByQuery(query, page = 1, perPage = 21) {
         titleColor: 'white',
       });
 
-      // Повертаємо передбачувану структуру навіть якщо результатів нема
       return { hits: [], totalHits: 0, total: 0 };
     }
 
@@ -47,7 +45,5 @@ export async function getImagesByQuery(query, page = 1, perPage = 21) {
     });
 
     return { hits: [], totalHits: 0, total: 0 };
-  } finally {
-    hideLoader();
   }
 }

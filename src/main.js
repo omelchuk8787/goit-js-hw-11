@@ -1,22 +1,21 @@
-import iziToast from 'izitoast';
+import iziToast from 'izitoast'; 
 import 'izitoast/dist/css/iziToast.min.css';
 import { getImagesByQuery } from './js/pixabay-api';
 import {
   clearGallery,
   createGallery,
   showLoader,
+  hideLoader,   
 } from './js/render-functions';
 
 const formEl = document.querySelector('.form');
 const buttonEl = formEl.querySelector('button');
 
-// Активуємо / вимикаємо кнопку при вводі
 formEl.addEventListener('input', e => {
   const query = e.currentTarget.elements['search-text'].value.trim();
   buttonEl.disabled = !query;
 });
 
-// Обробка пошуку
 formEl.addEventListener('submit', async e => {
   e.preventDefault();
 
@@ -30,7 +29,6 @@ formEl.addEventListener('submit', async e => {
     const { hits, totalHits } = await getImagesByQuery(query);
 
     if (!hits.length) {
-      // Повідомлення вже показується у pixabay-api.js
       return;
     }
 
@@ -51,5 +49,7 @@ formEl.addEventListener('submit', async e => {
       messageColor: 'white',
       titleColor: 'white',
     });
+  } finally {
+    hideLoader(); 
   }
 });
